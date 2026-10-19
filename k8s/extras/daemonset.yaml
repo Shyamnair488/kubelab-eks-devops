@@ -1,0 +1,23 @@
+# One pod per node (we have 2 nodes -> 2 pods). Runs src/agent.js from the same image.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kubelab-agent
+  namespace: kubelab
+spec:
+  selector:
+    matchLabels: { app: kubelab-agent }
+  template:
+    metadata:
+      labels: { app: kubelab-agent }
+    spec:
+      containers:
+        - name: agent
+          image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/kubelab:latest # Adjust the image name and tag as needed
+          command: ["node", "src/agent.js"]
+          env:
+            - { name: POD_NAME, valueFrom: { fieldRef: { fieldPath: metadata.name } } }
+            - { name: NODE_NAME, valueFrom: { fieldRef: { fieldPath: spec.nodeName } } }
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { cpu: 50m, memory: 64Mi }

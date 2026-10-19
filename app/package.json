@@ -1,0 +1,10 @@
+{
+  "name": "kubelab",
+  "version": "2.0.0",
+  "description": "KubeLab - hands-on Kubernetes learning app (Docker, ECR, EKS, ReplicaSet, DaemonSet, Deployment, HPA, Jobs)",
+  "main": "src/server.js",
+  "scripts": { "start": "node src/server.js", "dev": "node --watch src/server.js", "test": "jest --coverage" },
+  "dependencies": { "express": "^4.19.2" },
+  "devDependencies": { "jest": "^29.7.0", "supertest": "^7.0.0" },
+  "jest": { "testEnvironment": "node" }
+}

@@ -1,0 +1,26 @@
+# Standalone ReplicaSet for learning. Labels differ from the Deployment so they do not fight.
+# Try:  kubectl -n kubelab delete pod <one of the kubelab-rs pods>   -> a new one appears.
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: kubelab-rs
+  namespace: kubelab
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: kubelab-rs }
+  template:
+    metadata:
+      labels: { app: kubelab-rs }
+    spec:
+      containers:
+        - name: kubelab
+          image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/kubelab:latest  # Adjust the image name and tag as needed
+          ports: [{ containerPort: 3000 }]
+          env:
+            - { name: APP_ENV, value: "replicaset-demo" }
+            - { name: POD_NAME, valueFrom: { fieldRef: { fieldPath: metadata.name } } }
+            - { name: NODE_NAME, valueFrom: { fieldRef: { fieldPath: spec.nodeName } } }
+          resources:
+            requests: { cpu: 25m, memory: 48Mi }
+            limits: { cpu: 100m, memory: 96Mi }

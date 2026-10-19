@@ -1,0 +1,44 @@
+name: CI-CD to EKS
+on:
+  push: { branches: [main] }
+  pull_request:
+env:
+  AWS_REGION: us-east-1
+  ECR_REPO: kubelab
+  CLUSTER: mycluster
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
+      - run: npm ci
+      - run: npm test
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push image
+        run: |
+          IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest ./app
+          docker push $IMAGE --all-tags
+      - name: Deploy to EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ env.CLUSTER }} --region ${{ env.AWS_REGION }}
+          IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ github.sha }}
+          for f in k8s/*.yaml k8s/extras/*.yaml; do
+            sed "s|ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/kubelab:latest|$IMAGE|" "$f" | kubectl apply -f -
+          done
+          kubectl -n kubelab rollout status deployment/kubelab

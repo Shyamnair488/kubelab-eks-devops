@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KubeLab | Kubernetes Learning Dashboard</title>
+    <style>
+    :root {
+      --bg: #0a0f1f;
+      --card: #131a33;
+      --line: #243057;
+      --txt: #e8ecf8;
+      --mut: #8f9bc0;
+      --acc: #ff9900;
+      --ok: #2ecc8f;
+      --blue: #4c8dff;
+      --bad: #ff6b6b
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1100px 600px at 85% -10%, #1d2d66, var(--bg) 60%);
+      color: var(--txt);
+      min-height: 100vh
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 5vw;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem
+    }
+
+    h1 span {
+      color: var(--acc)
+    }
+
+    .pill {
+      padding: 6px 14px;
+      border-radius: 99px;
+      background: #102a24;
+      color: var(--ok);
+      font-size: .82rem;
+      border: 1px solid #1c5a47
+    }
+
+    .pill.bad {
+      background: #321418;
+      color: var(--bad);
+      border-color: #6b2530
+    }
+
+    nav {
+      display: flex;
+      gap: 6px;
+      padding: 14px 5vw 0;
+      flex-wrap: wrap
+    }
+
+    nav button {
+      background: var(--card);
+      color: var(--mut);
+      border: 1px solid var(--line);
+      padding: 9px 16px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    nav button.on {
+      background: var(--acc);
+      color: #1a1200;
+      border-color: var(--acc)
+    }
+
+    main {
+      padding: 24px 5vw;
+      max-width: 1250px;
+      margin: auto
+    }
+
+    .tab {
+      display: none
+    }
+
+    .tab.on {
+      display: block
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px
+    }
+
+    .card small {
+      color: var(--mut);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .68rem
+    }
+
+    .v {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 6px;
+      word-break: break-all
+    }
+
+    .v.big {
+      color: var(--acc)
+    }
+
+    section.card {
+      margin-top: 20px
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.05rem
+    }
+
+    h3 {
+      margin: 0 0 6px;
+      color: var(--acc)
+    }
+
+    button.btn {
+      cursor: pointer;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: var(--acc);
+      color: #1a1200;
+      font-weight: 700;
+      margin: 0 8px 8px 0
+    }
+
+    button.btn.alt {
+      background: transparent;
+      color: var(--txt);
+      border: 1px solid var(--line)
+    }
+
+    button.btn.danger {
+      background: var(--bad);
+      color: #200
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0
+    }
+
+    .row .n {
+      width: 42%;
+      font-family: monospace;
+      font-size: .82rem;
+      word-break: break-all
+    }
+
+    .row .b {
+      flex: 1;
+      height: 14px;
+      background: #0d1330;
+      border-radius: 99px;
+      overflow: hidden
+    }
+
+    .row .b i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--ok));
+      transition: width .3s
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px
+    }
+
+    input {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0d1330;
+      color: var(--txt)
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0
+    }
+
+    li.t {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 4px;
+      border-top: 1px solid var(--line)
+    }
+
+    li.t span {
+      flex: 1;
+      cursor: pointer
+    }
+
+    li.done span {
+      text-decoration: line-through;
+      color: var(--mut)
+    }
+
+    li.t button {
+      background: transparent;
+      color: var(--bad);
+      border: 1px solid #5a2630;
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 99px;
+      background: #0d1330;
+      overflow: hidden;
+      margin-bottom: 12px
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--blue), var(--ok));
+      transition: width .4s
+    }
+
+    code {
+      background: #0d1330;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: .82rem;
+      color: #ffd08a
+    }
+
+    pre {
+      background: #0d1330;
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      font-size: .8rem;
+      margin: 8px 0;
+      color: #cfe3ff
+    }
+
+    .lessons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 14px
+    }
+
+    .lessons p {
+      margin: 0 0 6px;
+      color: var(--mut);
+      font-size: .9rem
+    }
+
+    .msg {
+      color: var(--mut);
+      font-size: .85rem;
+      min-height: 1.2em
+    }
+  </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Kube<span>Lab</span> &middot; Kubernetes Learning
+        Dashboard</h1>
+      <div id="status" class="pill">checking...</div>
+    </header>
+    <nav><button class="on" data-tab="dash">Dashboard</button><button
+        data-tab="lab">Experiments</button><button
+        data-tab="learn">Learn</button><button
+        data-tab="tasks">Checklist</button></nav>
+    <main>
+      <div class="tab on" id="dash">
+        <div class="grid" id="cards"></div>
+        <section class="card">
+          <h2>Where am I running?</h2>
+          <div class="msg">Pod,
+            node and namespace come from the Kubernetes <b>Downward API</b>. The
+            message comes from a <b>ConfigMap</b>. The secret comes from a
+            <b>Secret</b> (only its length is shown).
+          </div>
+        </section>
+      </div>
+      <div class="tab" id="lab">
+        <section class="card">
+          <h2>1. Load balancing: which pod answers?</h2>
+          <button class="btn" id="send">Send 20 requests</button><button
+            class="btn alt" id="reset">Reset</button><span
+            class="msg" id="sendmsg"></span>
+          <div id="dist"></div>
+          <div class="msg">With 2+ replicas behind a
+            Service (or nginx in Docker Compose) the bars fill for different
+            pods.</div>
+        </section>
+        <section class="card">
+          <h2>2. Self-healing: crash a pod</h2>
+          <button class="btn danger" id="crash">Crash the pod serving
+            me</button>
+          <div class="msg">Kubernetes restarts it (watch <code>kubectl -n
+              kubelab get pods -w</code>, RESTARTS goes up).</div>
+        </section>
+        <section class="card">
+          <h2>3. Autoscaling: burn CPU</h2>
+          <button class="btn" id="load">Burn CPU 30s on 4 requests</button><span
+            class="msg" id="loadmsg"></span>
+          <div class="msg">The HorizontalPodAutoscaler adds pods: <code>kubectl
+              -n kubelab get hpa -w</code></div>
+        </section>
+      </div>
+      <div class="tab" id="learn">
+        <div class="lessons" id="lessons"></div>
+      </div>
+      <div class="tab" id="tasks">
+        <section class="card">
+          <h2>Learning checklist
+            <small id="progress"></small>
+          </h2>
+          <div class="bar"><i id="bar"></i></div>
+          <form id="form"><input id="title" placeholder="Add a task..."
+              maxlength="120" autocomplete="off"><button
+              class="btn">Add</button></form>
+          <ul id="list"></ul>
+        </section>
+      </div>
+    </main>
+    <script>
+    const $ = id => document.getElementById(id);
+    const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmt = s => s < 60 ? s + 's' : s < 3600 ? Math.floor(s / 60) + 'm ' + s % 60 + 's' : Math.floor(s / 3600) + 'h ' + Math.floor(s % 3600 / 60) + 'm';
+    document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+      document.querySelectorAll('nav button,.tab').forEach(e => e.classList.remove('on')); b.classList.add('on'); $(b.dataset.tab).classList.add('on');
+    });
+
+    async function loadInfo() {
+      try {
+        const i = await (await fetch('/api/info')).json();
+        const items = [['Pod', i.pod, 'big'], ['Node', i.node], ['Namespace', i.namespace], ['Pod IP', i.podIp], ['Environment', i.environment], ['Version', i.version],
+        ['ConfigMap message', i.message], ['Secret', i.secretLoaded ? `loaded (${i.secretLength} chars)` : 'not set'], ['Uptime', fmt(i.uptimeSeconds)], ['API requests', i.apiRequests], ['Node.js', i.nodeVersion]];
+        $('cards').innerHTML = items.map(([k, v, c]) => `<div class="card"><small>${k}</small><div class="v ${c || ''}">${esc(v)}</div></div>`).join('');
+        $('status').textContent = 'Healthy'; $('status').className = 'pill';
+      } catch { $('status').textContent = 'Unreachable'; $('status').className = 'pill bad'; }
+    }
+    const seen = {};
+    function drawDist() {
+      const total = Object.values(seen).reduce((a, b) => a + b, 0) || 1;
+      $('dist').innerHTML = Object.entries(seen).map(([p, n]) => `<div class="row"><div class="n">${esc(p)}</div><div class="b"><i style="width:${n / total * 100}%"></i></div><b>${n}</b></div>`).join('');
+    }
+    $('send').onclick = async () => {
+      $('sendmsg').textContent = 'sending...';
+      for (let k = 0; k < 20; k++) { try { const i = await (await fetch('/api/info', { cache: 'no-store' })).json(); seen[i.pod] = (seen[i.pod] || 0) + 1; } catch { } }
+      $('sendmsg').textContent = 'done'; drawDist();
+    };
+    $('reset').onclick = () => { for (const k in seen) delete seen[k]; drawDist(); };
+    $('crash').onclick = async () => {
+      if (!confirm('Crash the pod that answers this request?')) return;
+      await fetch('/api/crash', { method: 'POST' }); $('status').textContent = 'Pod crashed, restarting...'; $('status').className = 'pill bad'; setTimeout(loadInfo, 4000);
+    };
+    $('load').onclick = () => { $('loadmsg').textContent = ' running for 30s...'; for (let k = 0; k < 4; k++) fetch('/api/load?seconds=30').catch(() => { }); setTimeout(() => $('loadmsg').textContent = ' finished', 31000); };
+
+    const lessons = [
+      ['Pod', 'Smallest unit: one or more containers sharing network and storage.', 'kubectl -n kubelab get pods -o wide\nkubectl -n kubelab describe pod <pod>'],
+      ['ReplicaSet', 'Keeps N identical pods running. Delete one and it is recreated. Deployments manage ReplicaSets for you.', 'kubectl -n kubelab get rs\nkubectl -n kubelab delete pod <rs-pod>\nkubectl -n kubelab scale rs kubelab-rs --replicas=4'],
+      ['Deployment', 'Manages ReplicaSets and gives rolling updates and rollback.', 'kubectl -n kubelab set env deploy/kubelab APP_VERSION=2.1.0\nkubectl -n kubelab rollout status deploy/kubelab\nkubectl -n kubelab rollout undo deploy/kubelab'],
+      ['DaemonSet', 'Runs exactly one pod on every node (log/monitoring agents). New node = new pod automatically.', 'kubectl -n kubelab get ds\nkubectl -n kubelab get pods -l app=kubelab-agent -o wide\nkubectl -n kubelab logs ds/kubelab-agent'],
+      ['Service', 'Stable address and load balancer in front of changing pods. LoadBalancer type creates an AWS ELB.', 'kubectl -n kubelab get svc\nkubectl -n kubelab get endpoints kubelab'],
+      ['ConfigMap and Secret', 'Configuration and sensitive values injected as environment variables.', 'kubectl -n kubelab edit configmap kubelab-config\nkubectl -n kubelab rollout restart deploy/kubelab'],
+      ['Job and CronJob', 'Job runs to completion once. CronJob runs a Job on a schedule.', 'kubectl -n kubelab get jobs,cronjobs\nkubectl -n kubelab logs job/kubelab-job'],
+      ['HPA', 'Adds or removes pods based on CPU. Needs metrics-server and CPU requests.', 'kubectl -n kubelab get hpa -w\nkubectl top pods -n kubelab'],
+      ['Probes', 'Readiness removes unhealthy pods from the Service. Liveness restarts stuck containers.', 'kubectl -n kubelab describe pod <pod> | grep -A3 -i probe'],
+    ];
+    $('lessons').innerHTML = lessons.map(([t, d, c]) => `<div class="card"><h3>${t}</h3><p>${d}</p><pre>${esc(c)}</pre></div>`).join('');
+
+    async function loadTasks() {
+      const t = await (await fetch('/api/tasks')).json(), done = t.filter(x => x.done).length;
+      $('progress').textContent = `${done}/${t.length} done`; $('bar').style.width = (t.length ? done / t.length * 100 : 0) + '%';
+      $('list').innerHTML = t.map(x => `<li class="t ${x.done ? 'done' : ''}"><input type="checkbox" ${x.done ? 'checked' : ''} data-t="${x.id}"><span data-t="${x.id}">${esc(x.title)}</span><button data-d="${x.id}">Delete</button></li>`).join('');
+    }
+    $('list').onclick = async e => {
+      if (e.target.dataset.t) { await fetch(`/api/tasks/${e.target.dataset.t}/toggle`, { method: 'PATCH' }); loadTasks(); }
+      if (e.target.dataset.d) { await fetch(`/api/tasks/${e.target.dataset.d}`, { method: 'DELETE' }); loadTasks(); }
+    };
+    $('form').onsubmit = async e => {
+      e.preventDefault(); const title = $('title').value.trim(); if (!title) return;
+      await fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) }); $('title').value = ''; loadTasks();
+    };
+    loadInfo(); loadTasks(); setInterval(loadInfo, 5000);
+  </script>
+  </body>
+
+</html>

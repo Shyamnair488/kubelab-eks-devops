@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kubelab-cron
+  namespace: kubelab
+spec:
+  schedule: "*/5 * * * *"          # every 5 minutes
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: job
+              image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/kubelab:latest # Adjust the image name and tag as needed
+              command: ["node", "src/job.js"]
+              env:
+                - { name: POD_NAME, valueFrom: { fieldRef: { fieldPath: metadata.name } } }
+              resources:
+                requests: { cpu: 10m, memory: 32Mi }

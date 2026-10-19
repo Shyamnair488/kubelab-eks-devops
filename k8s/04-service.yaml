@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubelab
+  namespace: kubelab
+spec:
+  type: LoadBalancer          # creates an AWS Elastic Load Balancer
+  selector: { app: kubelab }
+  ports:
+    - port: 80
+      targetPort: 3000

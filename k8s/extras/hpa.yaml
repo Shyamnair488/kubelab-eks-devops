@@ -1,0 +1,15 @@
+# Needs metrics-server (scripts/deploy.sh installs it).
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kubelab
+  namespace: kubelab
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: kubelab }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 50 }

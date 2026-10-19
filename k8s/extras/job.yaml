@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kubelab-job
+  namespace: kubelab
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: job
+          image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/kubelab:latest # Adjust the image name and tag as needed
+          command: ["node", "src/job.js"]
+          env:
+            - { name: POD_NAME, valueFrom: { fieldRef: { fieldPath: metadata.name } } }
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
