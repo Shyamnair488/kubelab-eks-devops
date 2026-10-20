@@ -18,7 +18,7 @@ jobs:
       - run: npm test
   deploy:
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
